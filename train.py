@@ -10,6 +10,7 @@ import mlflow
 
 from utils.hubconf import custom
 from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import TensorBoard
 from my_utils import VideoFrameGenerator
 from actModels import convlstm_model, LRCN_model
 
@@ -134,9 +135,11 @@ print(f'[INFO] Successfully Created {png_name}')
 early_stopping_callback = EarlyStopping(
     monitor='val_loss', patience=15, mode='min', restore_best_weights=True)
 
+tensorboard_callback = TensorBoard(log_dir='logs', histogram_freq=1)
+
 # Compile the model and specify loss function, optimizer and metrics values to the model
 model.compile(loss='categorical_crossentropy',
-              optimizer='Adam', metrics=["accuracy"])
+              optimizer='Adam', metrics=['accuracy', 'auc', 'precision', 'recall', 'true_positives', 'true_negatives', 'false_positives', 'false_negatives'])
 
 print(f'[INFO] {model_type} Model Training Started...')
 
@@ -150,7 +153,7 @@ with mlflow.start_run(run_name=f'{model_type}_model'):
         validation_data=valid_gen,
         batch_size=batch_size,
         epochs=epochs,
-        callbacks=[early_stopping_callback]
+        callbacks=[early_stopping_callback, tensorboard_callback]
     )
 
     print(f'[INFO] Successfully Completed {model_type} Model Training')
