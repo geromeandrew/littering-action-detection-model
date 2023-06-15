@@ -56,6 +56,9 @@ def convlstm_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     # Return the constructed convlstm model.
     return model
 
+  
+
+  
 
 def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     '''

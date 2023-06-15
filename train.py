@@ -139,7 +139,7 @@ tensorboard_callback = TensorBoard(log_dir='logs', histogram_freq=1)
 
 # Compile the model and specify loss function, optimizer and metrics values to the model
 model.compile(loss='categorical_crossentropy',
-              optimizer='Adam', metrics=['accuracy', 'auc', 'precision', 'recall', 'true_positives', 'true_negatives', 'false_positives', 'false_negatives'])
+              optimizer='Adam', metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall(), tf.keras.metrics.AUC()])
 
 print(f'[INFO] {model_type} Model Training Started...')
 
