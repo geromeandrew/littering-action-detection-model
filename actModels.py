@@ -81,15 +81,15 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
     model.add(layers.TimeDistributed(layers.Dropout(0.25)))
 
-    model.add(layers.TimeDistributed(layers.Conv2D(
-        64, (3, 3), padding='same', activation='relu')))
-    model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
-    model.add(layers.TimeDistributed(layers.Dropout(0.25)))
+    # model.add(layers.TimeDistributed(layers.Conv2D(
+    #     64, (3, 3), padding='same', activation='relu')))
+    # model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
+    # model.add(layers.TimeDistributed(layers.Dropout(0.25)))
 
-    model.add(layers.TimeDistributed(layers.Conv2D(
-        64, (3, 3), padding='same', activation='relu')))
-    model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
-    # model.add(TimeDistributed(Dropout(0.25)))
+    # model.add(layers.TimeDistributed(layers.Conv2D(
+    #     64, (3, 3), padding='same', activation='relu')))
+    # model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
+    # # model.add(TimeDistributed(Dropout(0.25)))
 
     model.add(layers.TimeDistributed(layers.Flatten()))
 

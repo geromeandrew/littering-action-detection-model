@@ -135,3 +135,5 @@ data/
 mlruns
 
 littering_videos/
+
+best.pt
