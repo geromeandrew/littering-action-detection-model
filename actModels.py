@@ -93,7 +93,7 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
 
     model.add(layers.TimeDistributed(layers.Flatten()))
 
-    model.add(layers.LSTM(32))
+    model.add(layers.Bidirectional(layers.LSTM(64)))
 
     model.add(layers.Dense(len(CLASSES_LIST), activation='softmax'))
 
