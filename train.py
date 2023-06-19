@@ -30,7 +30,7 @@ ap.add_argument("-l", "--seq_len", type=int, default=20,
 ap.add_argument("-s", "--size", type=int, default=64,
                 help="size of video frame will be resized in our dataset")
 ap.add_argument("-m", "--model", type=str,  default='LRCN',
-                choices=['convLSTM', 'LRCN', 'charles_model'],
+                choices=['convLSTM', 'LRCN', 'charles_model', 'francis_model'],
                 help="select model type convLSTM or LRCN")
 ap.add_argument("-e", "--epochs", type=int, default=70,
                 help="number of epochs")
@@ -105,11 +105,11 @@ total_data = train_size + val_size
 if model_type == 'charles_model':
     print("[INFO] Selected Charles Model")
     model = convlstm_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST)
-    print("[INFO] convLSTM Created Successfully!")
-elif model_type == 'LRCN':
-    print("[INFO] Selected LRCN Model")
+    print("[INFO] Charles Model Created Successfully!")
+elif model_type == 'francis_model':
+    print("[INFO] Selected Francis Model")
     model = LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST)
-    print("[INFO] LRCN Created Successfully!")
+    print("[INFO] Francis Model Created Successfully!")
 else:
     print('[INFO] Model NOT Choosen!!')
 
@@ -135,7 +135,7 @@ print(f'[INFO] Successfully Created {png_name}')
 early_stopping_callback = EarlyStopping(
     monitor='val_loss', patience=15, mode='min', restore_best_weights=True)
 
-tensorboard_callback = TensorBoard(log_dir='charles_logs', histogram_freq=1)
+tensorboard_callback = TensorBoard(log_dir='francis_logs', histogram_freq=1)
 
 # Compile the model and specify loss function, optimizer and metrics values to the model
 precision = tf.keras.metrics.Precision()
