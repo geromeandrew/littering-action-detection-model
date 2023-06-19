@@ -30,7 +30,7 @@ ap.add_argument("-l", "--seq_len", type=int, default=20,
 ap.add_argument("-s", "--size", type=int, default=64,
                 help="size of video frame will be resized in our dataset")
 ap.add_argument("-m", "--model", type=str,  default='LRCN',
-                choices=['convLSTM', 'LRCN'],
+                choices=['convLSTM', 'LRCN', 'charles_model'],
                 help="select model type convLSTM or LRCN")
 ap.add_argument("-e", "--epochs", type=int, default=70,
                 help="number of epochs")
@@ -102,8 +102,8 @@ val_size = int(valid_gen.files_count)
 total_data = train_size + val_size
 
 # Model Selection
-if model_type == 'convLSTM':
-    print("[INFO] Selected convLSTM Model")
+if model_type == 'charles_model':
+    print("[INFO] Selected Charles Model")
     model = convlstm_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST)
     print("[INFO] convLSTM Created Successfully!")
 elif model_type == 'LRCN':
@@ -124,7 +124,7 @@ else:
     for i in f:
         os.remove(i)
 
-png_name = f'{model_type}_model_str.png'
+png_name = f'{model_type}_architecture.png'
 path_to_model_str = os.path.join(path_to_model_dir, png_name)
 # Plot the structure of the contructed model.
 tf.keras.utils.plot_model(model, to_file=path_to_model_str,
@@ -135,14 +135,15 @@ print(f'[INFO] Successfully Created {png_name}')
 early_stopping_callback = EarlyStopping(
     monitor='val_loss', patience=15, mode='min', restore_best_weights=True)
 
-tensorboard_callback = TensorBoard(log_dir='logs', histogram_freq=1)
+tensorboard_callback = TensorBoard(log_dir='charles_logs', histogram_freq=1)
 
 # Compile the model and specify loss function, optimizer and metrics values to the model
 precision = tf.keras.metrics.Precision()
 recall = tf.keras.metrics.Recall()
+auc = tf.keras.metrics.AUC()
 
 model.compile(loss='categorical_crossentropy',
-              optimizer='Adam', metrics=['accuracy', precision, recall, tf.keras.metrics.AUC()])
+              optimizer='Adam', metrics=['accuracy', precision, recall, auc])
 
 print(f'[INFO] {model_type} Model Training Started...')
 
@@ -170,7 +171,7 @@ with mlflow.start_run(run_name=f'{model_type}_model'):
     model_evaluation_history = model.evaluate(valid_gen)
 
     # Get the loss and accuracy from model_evaluation_history.
-    model_evaluation_loss, model_evaluation_accuracy = model_evaluation_history
+    model_evaluation_loss, model_evaluation_accuracy, model_evaluation_precision, model_evaluation_recall, model_evaluation_auc = model_evaluation_history
 
     # Define a useful name for our model to make it easy for us while navigating through multiple saved models.
     model_file_name = f'{model_type}_model_loss_{model_evaluation_loss:.3}_acc_{model_evaluation_accuracy:.3}.h5'
