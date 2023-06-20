@@ -65,7 +65,7 @@ fps = video_reader.get(cv2.CAP_PROP_FPS)
 # Write Video
 if save:
     out_vid = cv2.VideoWriter('output.mp4', 
-                         cv2.VideoWriter_fourcc(*'MP4V'),
+                         cv2.VideoWriter_fourcc(*'mp4v'),
                          fps, (original_video_width, original_video_height))
 
 # Declare a queue to store video frames.
