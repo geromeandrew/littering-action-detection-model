@@ -58,7 +58,7 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     model.add(layers.TimeDistributed(layers.GlobalAveragePooling2D()))
     model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=False)))
     model.add(layers.Dense(128, activation='relu'))
-    model.add(layers.Dense(len(CLASSES_LIST), activation='softmax'))
+    model.add(layers.Dense(len(CLASSES_LIST), activation='sigmoid'))
 
 
     model.summary()
