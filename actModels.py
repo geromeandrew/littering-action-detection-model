@@ -11,25 +11,23 @@ def convlstm_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     model.add(layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
     model.add(layers.TimeDistributed(layers.Dropout(0.2)))
 
-    model.add(layers.ConvLSTM2D(filters=32, kernel_size=(3, 3), activation='tanh', data_format="channels_last", recurrent_dropout=0.2, return_sequences=True))
+    model.add(layers.ConvLSTM2D(filters=16, kernel_size=(3, 3), activation='tanh', data_format="channels_last", recurrent_dropout=0.2, return_sequences=True))
     model.add(layers.BatchNormalization())
     model.add(layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
     model.add(layers.TimeDistributed(layers.Dropout(0.2)))
 
-    model.add(layers.ConvLSTM2D(filters=64, kernel_size=(3, 3), activation='tanh', data_format="channels_last", recurrent_dropout=0.2, return_sequences=True))
+    model.add(layers.ConvLSTM2D(filters=16, kernel_size=(3, 3), activation='tanh', data_format="channels_last", recurrent_dropout=0.2, return_sequences=True))
     model.add(layers.BatchNormalization())
     model.add(layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
     model.add(layers.TimeDistributed(layers.Dropout(0.2)))
 
-    model.add(layers.ConvLSTM2D(filters=128, kernel_size=(3, 3), activation='tanh', data_format="channels_last", recurrent_dropout=0.2, return_sequences=True))
+    model.add(layers.ConvLSTM2D(filters=16, kernel_size=(3, 3), activation='tanh', data_format="channels_last", recurrent_dropout=0.2, return_sequences=True))
     model.add(layers.BatchNormalization())
     model.add(layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
     model.add(layers.TimeDistributed(layers.Dropout(0.2)))
 
     model.add(layers.GlobalAveragePooling3D())
     model.add(layers.Dense(256, activation='relu'))
-    model.add(layers.BatchNormalization())
-    model.add(layers.Dense(128, activation='relu'))
     model.add(layers.BatchNormalization())
     model.add(layers.Dense(len(CLASSES_LIST), activation="softmax"))
 
