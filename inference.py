@@ -1,18 +1,16 @@
 import cv2
 from collections import deque
 import numpy as np
-from keras.models import load_model
 import argparse
 import os
 from utils.hubconf import custom
 from utils.plots import plot_one_box
 import tensorflow as tf
-
+import time
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--dataset", type=str, required=True,
                 help="path to csv Data")
-# Specify the number of frames of a video that will be fed to the model as one sequence.
 ap.add_argument("-l", "--seq_len", type=int, default=20,
                 help="length of Sequence")
 ap.add_argument("-s", "--size", type=int, default=64,
@@ -28,9 +26,13 @@ ap.add_argument("--save", action='store_true',
 ap.add_argument("-d", "--detect_model", type=str,  required=True,
                 help="path to YOLOv7 model")
 ap.add_argument("-dc", "--yolov7_conf", type=float, default=0.6,
-                help="YOLOv7 detection model confidenece (0<conf<1)")
+                help="YOLOv7 detection model confidence (0<conf<1)")
 ap.add_argument("--gpu", action='store_true',
                 help="use GPU")
+
+# Initialize FPS measurement variables
+frame_count = 0
+start_time = time.time()
 
 args = vars(ap.parse_args())
 DATASET_DIR = args["dataset"]
@@ -47,7 +49,7 @@ gpu_status = args['gpu']
 CLASSES_LIST = sorted(os.listdir(DATASET_DIR))
 
 # Load LRCN_model
-saved_model = load_model(path_to_model)
+saved_model = tf.keras.models.load_model(path_to_model, compile=False)
 
 # YOLOv7 Model
 yolov7_model = custom(path_or_model=yolov7_model_path, gpu=gpu_status)
@@ -100,7 +102,7 @@ while video_reader.isOpened():
                 resized_frame = cv2.resize(frame_roi, (IMAGE_SIZE, IMAGE_SIZE))
 
                 # Normalize the resized frame by dividing it with 255 so that each pixel value then lies between 0 and 1.
-                normalized_frame = tf.keras.utils.img_to_array(resized_frame) / 255.
+                normalized_frame = tf.keras.utils.normalize(resized_frame, axis=0, order=2)
 
                 # Appending the pre-processed frame into the frames list.
                 frames_queue.append(normalized_frame)
@@ -118,22 +120,34 @@ while video_reader.isOpened():
                     if max(predicted_labels_probabilities) > thresh:
 
                         # Get the class name using the retrieved index.
-                        predicted_class_name = CLASSES_LIST[predicted_label]
+                        predicted_class_name = 'littering'
 
                         plot_one_box(
                             bbox, frame, label=predicted_class_name,
-                            color=[0, 255, 0], line_thickness=2
+                            color=[224, 0, 0], line_thickness=2
                         )
 
                     else:
                         plot_one_box(
-                            bbox, frame, label='Action NOT Detetced',
+                            bbox, frame, label='Action NOT Detected',
                             color=[0, 0, 255], line_thickness=2
                         )
             else:
                 print(
                     f'[INFO] Object detection confidence: {bbox[4]} is less than given Confidence: {yolov7_conf}')
 
+    # Increment frame count
+    frame_count += 1
+
+    # Calculate elapsed time
+    elapsed_time = time.time() - start_time
+
+    # Calculate frames per second (FPS)
+    fps = frame_count / elapsed_time
+
+    # Add FPS text on the top left corner of the frame
+    cv2.putText(fps, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    
     # Write Video
     if save:
         out_vid.write(frame)
@@ -141,6 +155,8 @@ while video_reader.isOpened():
     cv2.imshow('Out', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    
+    
 
 video_reader.release()
 if save:
