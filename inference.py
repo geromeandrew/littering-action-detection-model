@@ -124,13 +124,13 @@ while video_reader.isOpened():
 
                         plot_one_box(
                             bbox, frame, label=predicted_class_name,
-                            color=[224, 0, 0], line_thickness=2
+                            color=[0, 165, 255], line_thickness=2
                         )
 
                     else:
                         plot_one_box(
                             bbox, frame, label='Action NOT Detected',
-                            color=[0, 0, 255], line_thickness=2
+                            color=[128, 128, 0], line_thickness=2
                         )
             else:
                 print(

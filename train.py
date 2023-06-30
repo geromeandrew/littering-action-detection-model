@@ -13,6 +13,15 @@ from keras.callbacks import EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard
 from my_utils import VideoFrameGenerator
 from actModels import convlstm_model, LRCN_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+if tf.test.is_gpu_available():
+    # Set GPU memory growth (optional)
+    physical_devices = tf.config.list_physical_devices('GPU')
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    print("GPU is available.")
+else:
+    print("GPU is not available. Training on CPU.")
 
 
 seed_constant = 27
@@ -30,7 +39,7 @@ ap.add_argument("-l", "--seq_len", type=int, default=20,
 ap.add_argument("-s", "--size", type=int, default=64,
                 help="size of video frame will be resized in our dataset")
 ap.add_argument("-m", "--model", type=str,  default='LRCN',
-                choices=['convLSTM', 'LRCN', 'charles_model', 'final_model'],
+                choices=['convLSTM', 'LRCN', 'charles_model', 'final_model', 'finalv2_model'],
                 help="select model type convLSTM or LRCN")
 ap.add_argument("-e", "--epochs", type=int, default=70,
                 help="number of epochs")
@@ -71,11 +80,13 @@ s_time = time.time()
 CLASSES_LIST = sorted(os.listdir(DATASET_DIR))
 
 # for data augmentation
-# preprocessor = ImageDataGenerator(
-#     rotation_range=10,
-#     width_shift_range=0.1,
-#     height_shift_range=0.1
-# )
+preprocessor = ImageDataGenerator(
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    rotation_range=20,   
+    shear_range=0.2,  
+    zoom_range=0.2, 
+)
 
 # Create video frame generator
 train_gen = VideoFrameGenerator(
@@ -106,10 +117,10 @@ if model_type == 'charles_model':
     print("[INFO] Selected Charles Model")
     model = convlstm_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST)
     print("[INFO] convLSTM Created Successfully!")
-elif model_type == 'final_model':
-    print("[INFO] Selected Final Model")
+elif model_type == 'finalv2_model':
+    print("[INFO] Selected Finalv2 Model")
     model = LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST)
-    print("[INFO] Final Model Created Successfully!")
+    print("[INFO] Finalv2 Model Created Successfully!")
 else:
     print('[INFO] Model NOT Choosen!!')
 
@@ -135,7 +146,7 @@ print(f'[INFO] Successfully Created {png_name}')
 early_stopping_callback = EarlyStopping(
     monitor='val_loss', patience=15, mode='min', restore_best_weights=True)
 
-tensorboard_callback = TensorBoard(log_dir='final_logs', histogram_freq=1)
+tensorboard_callback = TensorBoard(log_dir='finalv2_logs', histogram_freq=1)
 
 # Compile the model and specify loss function, optimizer and metrics values to the model
 precision = tf.keras.metrics.Precision()

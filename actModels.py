@@ -36,10 +36,9 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     '''
 
     # We will use a Sequential model for model construction.
-    model = Sequential()
+    from keras.layers import Bidirectional, GRU
 
-    # Define the Model Architecture.
-    ########################################################################################################################
+    model = Sequential()
 
     model.add(layers.TimeDistributed(layers.Conv2D(16, (3, 3), padding='same', activation='relu'), input_shape=(SEQUENCE_LENGTH, IMAGE_SIZE, IMAGE_SIZE, 3)))
     model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
@@ -51,14 +50,10 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
 
     model.add(layers.TimeDistributed(layers.Flatten()))
 
-    model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=False)))
+    model.add(Bidirectional(GRU(32, return_sequences=False)))
 
     model.add(layers.Dense(len(CLASSES_LIST), activation='softmax'))
 
-    ########################################################################################################################
-
-    # Display the models summary.
     model.summary()
 
-    # Return the constructed LRCN model.
     return model
