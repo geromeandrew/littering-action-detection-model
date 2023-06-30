@@ -41,30 +41,17 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
     # Define the Model Architecture.
     ########################################################################################################################
 
-    model.add(layers.TimeDistributed(layers.Conv2D(16, (3, 3), padding='same', activation='relu'),
-                                     input_shape=(SEQUENCE_LENGTH, IMAGE_SIZE, IMAGE_SIZE, 3)))
-
+    model.add(layers.TimeDistributed(layers.Conv2D(16, (3, 3), padding='same', activation='relu'), input_shape=(SEQUENCE_LENGTH, IMAGE_SIZE, IMAGE_SIZE, 3)))
     model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
     model.add(layers.TimeDistributed(layers.Dropout(0.25)))
 
-    model.add(layers.TimeDistributed(layers.Conv2D(
-        32, (3, 3), padding='same', activation='relu')))
+    model.add(layers.TimeDistributed(layers.Conv2D(32, (3, 3), padding='same', activation='relu')))
     model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
     model.add(layers.TimeDistributed(layers.Dropout(0.25)))
-
-    # model.add(layers.TimeDistributed(layers.Conv2D(
-    #     64, (3, 3), padding='same', activation='relu')))
-    # model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
-    # model.add(layers.TimeDistributed(layers.Dropout(0.25)))
-
-    # model.add(layers.TimeDistributed(layers.Conv2D(
-    #     64, (3, 3), padding='same', activation='relu')))
-    # model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
-    # # model.add(TimeDistributed(Dropout(0.25)))
 
     model.add(layers.TimeDistributed(layers.Flatten()))
 
-    model.add(layers.LSTM(32))
+    model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=False)))
 
     model.add(layers.Dense(len(CLASSES_LIST), activation='softmax'))
 
