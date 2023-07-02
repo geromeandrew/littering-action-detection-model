@@ -7,6 +7,7 @@ from utils.plots import plot_one_box
 import tensorflow as tf
 import time
 
+
 DATASET_DIR = "littering-action-detection-model/data"
 SEQUENCE_LENGTH = 20
 IMAGE_SIZE = 224
