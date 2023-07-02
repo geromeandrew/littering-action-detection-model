@@ -12,11 +12,11 @@ SEQUENCE_LENGTH = 20
 IMAGE_SIZE = 224
 path_to_model = "littering-action-detection-model/charles_model/charles_model_model_loss_0.643_acc_0.848.h5"
 video_path = ""
-thresh = 0.8
-save = True
+thresh = 0.7
+save = False
 yolov7_model_path = "littering-action-detection-model/inference.pt"
-yolov7_conf = 0.2
-gpu_status = True
+yolov7_conf = 0.1
+gpu_status = False
 
 use_webcam = True  # Set to True if using webcam input
 
@@ -39,6 +39,10 @@ original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
 original_video_height = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = video_reader.get(cv2.CAP_PROP_FPS)
 
+# Calculate the delay in milliseconds based on the original frame rate
+frame_delay_ms = int(1000 / fps)
+
+
 # Write Video
 if save:
     out_vid = cv2.VideoWriter('output.mp4',
@@ -48,19 +52,23 @@ if save:
 # Declare a queue to store video frames.
 frames_queue = deque(maxlen=SEQUENCE_LENGTH)
 
-# Create a blank image for the detections window
-detections_image = np.zeros((original_video_height, original_video_width, 3), dtype=np.uint8)
-
-# Set window properties
+# Set window properties for the camera feed
 cv2.namedWindow('Camera Feed', cv2.WINDOW_NORMAL)
-cv2.setWindowProperty('Camera Feed', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-cv2.namedWindow('Detections', cv2.WINDOW_NORMAL)
+# cv2.setWindowProperty('Camera Feed', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+# Set window properties for the inference frames
+cv2.namedWindow('Inference Frames', cv2.WINDOW_NORMAL)
+# cv2.setWindowProperty('Inference Frames', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 # Initialize variables for inference display
 inference_frames = []
-num_inference_frames = 5
 prev_detection = False
 detection_count = 0
+
+# Create a folder for inference images if it doesn't exist
+inference_images_folder = "littering-action-detection-model/inference_images"
+if not os.path.exists(inference_images_folder):
+    os.makedirs(inference_images_folder)
 
 while video_reader.isOpened():
     success, frame = video_reader.read()
@@ -117,15 +125,14 @@ while video_reader.isOpened():
                         )
 
                         # Update the detections image with the most recent detection
-                        cv2.rectangle(detections_image, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 165, 255), 2)
-                        cv2.putText(detections_image, "Pulutin mo kalat mo", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
+                        cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 165, 255), 2)
+                        cv2.putText(frame, "Pulutin mo kalat mo bitch!", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
 
                         # Store the inference frames for display
-                        inference_frames.append(frame)
+                        inference_frames.append(frame.copy())
 
                         # Display the inference frames for a limited number of times
-                        if len(inference_frames) <= num_inference_frames:
-                            cv2.imshow('Inference Frames', frame)
+                        cv2.imshow('Inference Frames', frame)
 
                     else:
                         plot_one_box(
@@ -144,11 +151,22 @@ while video_reader.isOpened():
     cv2.putText(frame, time.strftime('%Y-%m-%d %H:%M:%S'), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
     cv2.imshow('Camera Feed', frame)
 
-    # Show the detections window
-    cv2.imshow('Detections', detections_image)
+    # Wait for a short duration to control the output video's frame rate
+    cv2.waitKey(frame_delay_ms)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+
+    if len(inference_frames) > 0:
+        # Save detected frames with date and time of detection as filename
+        for idx, frame in enumerate(inference_frames):
+            now = time.strftime('%Y%m%d_%H%M%S')
+            filename = f"{inference_images_folder}/inference_{now}_{idx}.jpg"
+            cv2.imwrite(filename, frame)
+
+        # Clear the inference frames list after saving
+        inference_frames.clear()
 
 video_reader.release()
 if save:
