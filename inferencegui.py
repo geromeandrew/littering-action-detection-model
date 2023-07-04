@@ -9,15 +9,15 @@ import time
 
 
 DATASET_DIR = "littering-action-detection-model/data"
-SEQUENCE_LENGTH = 20
-IMAGE_SIZE = 224
-path_to_model = "littering-action-detection-model/charles_model/charles_model_model_loss_0.643_acc_0.848.h5"
-video_path = ""
-thresh = 0.7
+SEQUENCE_LENGTH = 30
+IMAGE_SIZE = 128
+path_to_model = "littering-action-detection-model/finalv2_model/finalv2_model_model_loss_0.163_acc_0.945.h5"
+video_path = "littering-action-detection-model/5.mp4"
+thresh = 0.9
 save = False
 yolov7_model_path = "littering-action-detection-model/inference.pt"
-yolov7_conf = 0.1
-gpu_status = False
+yolov7_conf = 0.2
+gpu_status = True
 
 use_webcam = True  # Set to True if using webcam input
 
@@ -42,6 +42,16 @@ fps = video_reader.get(cv2.CAP_PROP_FPS)
 
 # Calculate the delay in milliseconds based on the original frame rate
 frame_delay_ms = int(1000 / fps)
+
+def calculate_fps(prev_time, frame_count):
+    current_time = time.time()
+    time_elapsed = current_time - prev_time
+    fps = frame_count / time_elapsed if time_elapsed > 0 else 0
+    return current_time, fps
+
+fps_update_interval = 5  # Update the FPS display every 5 seconds
+prev_fps_update_time = time.time()
+frame_count = 0
 
 
 # Write Video
@@ -127,7 +137,7 @@ while video_reader.isOpened():
 
                         # Update the detections image with the most recent detection
                         cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 165, 255), 2)
-                        cv2.putText(frame, "Pulutin mo kalat mo bitch!", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
+                        cv2.putText(frame, "Pick up your trash", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
 
                         # Store the inference frames for display
                         inference_frames.append(frame.copy())
@@ -149,7 +159,15 @@ while video_reader.isOpened():
         out_vid.write(frame)
 
     # Show the camera feed with time and date
-    cv2.putText(frame, time.strftime('%Y-%m-%d %H:%M:%S'), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+    cv2.putText(frame, time.strftime('%Y-%m-%d %H:%M:%S'), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+
+    # Calculate FPS and update the FPS display every 'fps_update_interval' seconds
+    frame_count += 1
+    if time.time() - prev_fps_update_time > fps_update_interval:
+        prev_fps_update_time, fps = calculate_fps(prev_fps_update_time, frame_count)
+        cv2.putText(frame, f"FPS: {fps:.1f}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 0), 2)
+        frame_count = 0
+
     cv2.imshow('Camera Feed', frame)
 
     # Wait for a short duration to control the output video's frame rate
