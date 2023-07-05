@@ -40,18 +40,18 @@ def LRCN_model(SEQUENCE_LENGTH, IMAGE_SIZE, CLASSES_LIST):
 
     model = Sequential()
 
-    model.add(layers.TimeDistributed(layers.Conv2D(32, (3, 3), padding='same', activation='relu'), input_shape=(SEQUENCE_LENGTH, IMAGE_SIZE, IMAGE_SIZE, 3)))
-    model.add(layers.TimeDistributed(layers.BatchNormalization()))
+    model.add(layers.TimeDistributed(layers.Conv2D(16, (3, 3), padding='same', activation='relu'), input_shape=(SEQUENCE_LENGTH, IMAGE_SIZE, IMAGE_SIZE, 3)))
+    # model.add(layers.TimeDistributed(layers.BatchNormalization()))
+    model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
+    model.add(layers.TimeDistributed(layers.Dropout(0.25)))
+
+    model.add(layers.TimeDistributed(layers.Conv2D(32, (3, 3), padding='same', activation='relu')))
+    # model.add(layers.TimeDistributed(layers.BatchNormalization()))
     model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
     model.add(layers.TimeDistributed(layers.Dropout(0.25)))
 
     model.add(layers.TimeDistributed(layers.Conv2D(64, (3, 3), padding='same', activation='relu')))
-    model.add(layers.TimeDistributed(layers.BatchNormalization()))
-    model.add(layers.TimeDistributed(layers.MaxPooling2D((4, 4))))
-    model.add(layers.TimeDistributed(layers.Dropout(0.25)))
-
-    model.add(layers.TimeDistributed(layers.Conv2D(128, (3, 3), padding='same', activation='relu')))
-    model.add(layers.TimeDistributed(layers.BatchNormalization()))
+    # model.add(layers.TimeDistributed(layers.BatchNormalization()))
     model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
     model.add(layers.TimeDistributed(layers.Dropout(0.25)))
 
